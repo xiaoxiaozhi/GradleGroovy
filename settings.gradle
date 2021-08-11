@@ -1,0 +1,3 @@
+include ':GroovyLib'
+include ':app'
+rootProject.name = "GradleGroovy"
