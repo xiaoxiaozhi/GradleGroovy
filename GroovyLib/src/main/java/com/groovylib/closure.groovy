@@ -41,13 +41,74 @@ func1(10) {
     date, i ->
         print "${new SimpleDateFormat("HH:mm:ss").format(date)} 打印$i\t"
 }
+println " "
+//3.1根据闭包的参数，选择使用
+def fun2(a, closure) {
+    if (closure.maximumNumberOfParameters == 1) {
+        println "一个参数的闭包"
+    } else if (closure.maximumNumberOfParameters == 2) {
+        println "两个参数的闭包"
+    }
+}
 
+fun2(10) {
+
+}
 println " "
 //4.清理资源
 new FileWriter("out.txt").withWriter {
     it.write("使用闭包自动close关闭流")
 }//使用withWriter才能关闭流
 println " "
+//5.闭包委托,从日志可以看出来，闭包被创建成一个内部类，delegate被设置为owner。
+// 在闭包内引用的变量和方法都会绑定到this，它负责处理任何方法调用，以及对任何属性或变量的访问。
+// 如果this无法处理，则转向owner，最后是delegate
+def closure1 = {
+    println "first closure1"
+    println getClass().getName() //
+    println "this is " + this + "; parent isc" + getClass().superclass.getName()
+    println "owner is " + owner
+    println "delegate is " + owner
+    def closure2 = {
+        println "second closure2"
+        println getClass().getName()
+        println "this is " + this + "; parent isc" + getClass().superclass.getName()
+        println "owner is " + owner
+        println "delegate is " + owner
+    }
+    closure2()
+}
+closure1()
+println " "
+
+class Handler {
+    def f1() { println "f1 of Handler called ……" }
+
+    def f2() { println "f2 of Handler called ……" }
+}
+
+class Example {
+    def f1() { println "f1 of Example called ……" }
+
+    def f2() { println "f2 of Example called ……" }
+
+    def foo(closure) {
+        closure.delegate = new Handler()
+//        new Handler().with closure  //相当于 def clone = closure.clone() clone.delegate = handler  clone()
+        closure()
+    }
+}
+
+def f1() { println "f1 of Script called……" }
+//在闭包内引用的变量和方法都会绑定到this，它负责处理任何方法调用，以及对任何属性或变量的访问。
+// 如果this无法处理，则转向owner，最后是delegate
+new Example().foo {
+    println "this is " + this//this 是闭包，闭包本质上是个内部类，它没有 f1 和 f2 函数
+    f1()
+    f2()
+}
+
+println(" ")
 //一个i=0到i=3的循环，3的扩展类型，groovy已经做好
 3.times {
     print it
