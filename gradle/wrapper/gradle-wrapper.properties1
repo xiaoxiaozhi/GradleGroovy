@@ -1,9 +1,7 @@
 #Mon Aug 09 21:34:59 CST 2021
-#GRADLE_USER_HOME 默认路径~/.gradle,项目启动时下载插件、依赖、gradle到这个目录
-distributionBase=GRADLE_USER_HOME
-#distributionUrl 指定gradle版本， 被下载到这个目录
+#GRADLE_USER_HOME 默认路径 在~/.gradle 存放模块
+distributionBase=GRADLE_USER_HOME  
 distributionPath=wrapper/dists
-#同上存放的是 没有解压过的
 zipStoreBase=GRADLE_USER_HOME
 zipStorePath=wrapper/dists
 distributionUrl=https\://services.gradle.org/distributions/gradle-6.5-all.zip

@@ -1,3 +1,4 @@
 include ':GroovyLib'
 include ':app'
 rootProject.name = "GradleGroovy"
+//: 相当于 /

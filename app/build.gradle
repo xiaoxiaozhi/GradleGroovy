@@ -37,3 +37,11 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
 }
+//每个项目由一个或多个任务组成。任务代表构建执行的一些原子工作。这可能是编译某些类，创建 JAR，生成 Javadoc
+// 或将一些存档发布到存储库。
+//自定义task ，在右边的gradle工具箱 task --->other 可以找到自定义的 diyTask
+task("diyTask"){
+    println "diy task"
+}
+//
+//也可以脚本执行task 在terminal 里面 执行gradlew task diyTask或者驼峰写法 gradlew task dt

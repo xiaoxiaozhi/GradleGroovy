@@ -5,11 +5,11 @@
 //
 
 println " "
-//程序执行时在 metaClass 上动态定义一个闭包
+//----程序执行时在 metaClass 上动态定义一个闭包
 def val = new Integer(3)
 Integer.metaClass.toString = { -> println 'intercepted' }
 val.toString()
-//继承groovyInterceptable的对象，不管调用的方法存不存在都会被invokeMethod拦截
+//----继承groovyInterceptable的对象,不管调用的方法存不存在都会被invokeMethod拦截
 class InterceptTest implements GroovyInterceptable {
     @Override
     Object invokeMethod(String name, Object args) {
@@ -27,10 +27,10 @@ class AGroovyObject {
     def existingMethod2() { 'existingMethod2' }
     def closureProp = { 'closure called' }
 }
-//1.对于一个POJO，Groovy会去应用类（application-wide）的MetaClassRegistry取它的MetaClass，
-// 并将方法调用委托给它。因此，我们在它的MetaClass上定义的任何拦截器或方法，都优先于POJO原来的方法。
-//2.对于一个POGO，Groovy会采取一些额外的步骤,如果对象实现了GroovyInterceptable，
-// 那么所有的调用都会被路由给它的invokeMethod（）
+//1.对于一个POJO,Groovy会去应用类(application-wide)的MetaClassRegistry取它的MetaClass,
+// 并将方法调用委托给它。因此,我们在它的MetaClass上定义的任何拦截器或方法,都优先于POJO原来的方法。
+//2.对于一个POGO,Groovy会采取一些额外的步骤,如果对象实现了GroovyInterceptable,
+// 那么所有的调用都会被路由给它的invokeMethod()
 AGroovyObject.metaClass.existingMethod2 = { -> 'intercepted' }
 def obj = new AGroovyObject()
 println "existingMethod2---" + obj.existingMethod2()
@@ -42,8 +42,58 @@ println "通过元方法meatMethod执行 existingMethod() 结果 " + aObj.metaCl
 //[]调用属性
 String str = "str"
 println aObj[str]
-//拦截方法调用的两种方式：要么让对象拦截，要么让MetaClass拦截,让对象处理的话，需要实现GroovyInterceptable接口
+//拦截方法调用的两种方式：要么让对象拦截,要么让MetaClass拦截,让对象处理的话,需要实现GroovyInterceptable接口
+class Car1 implements GroovyInterceptable {
+    def check() { System.out.println "check called……" }
 
+    def start() { System.out.println "start called……" }
+
+    def drive() { System.out.println "drive called……" }
+
+    def invokeMethod(String name, args) {
+        System.out.print("Call to $name intercepted..．")
+        if (name != 'check') {
+            System.out.print("running filter..．")
+            metaClass.getMetaMethod('check').invoke(this, null)
+        }
+        def validMethod = metaClass.getMetaMethod(name, args)
+        if (validMethod != null) {
+            validMethod.invoke(this, args)
+        } else {
+            metaClass.invokeMethod(this, name, args)
+        }
+    }
+}
+
+Car1 car = new Car1()
+car1.metaClass.speed = {
+    System.out.println "speed called……"
+}
+car1.speed()
+//使用meatclass 拦截方法
+class Car2 {
+    def check() { System.out.println "check called……" }
+
+    def start() { System.out.println "start called……" }
+
+    def drive() { System.out.println "drive called……" }
+}
+Ca2r.metaClass.invokeMethod = { String name, args ->
+    System.out.print("Call to $name intercepted..．")
+    if (name != 'check') {
+        System.out.print("running filter..．")
+        Car2.metaClass.getMetaMethod('check').invoke(delegate, null)
+    }
+    def validMethod = Car2.metaClass.getMetaMethod(name, args)
+    if (validMethod != null) {
+        validMethod.invoke(delegate, args)
+    } else {
+        Car2.metaClass.invokeMissingMethod(delegate, name, args)
+    }
+}
+Car2 car2 = new Car2()
+
+car2.speed()
 //class TestMethodInvocation extends GroovyTestCase {
 //    void testInterceptedMethodCallonPOJO() {
 //        def val = new Integer(3)
