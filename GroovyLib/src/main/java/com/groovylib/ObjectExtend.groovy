@@ -7,8 +7,8 @@ class Example {
 
     def f2() { println "f2 of Example called ……" }
 
-    public Exampe(String s) {
-
+    public Example(String s) {
+        println s
     }
 }
 //2.with上下文， 调用with()需要传入一个闭包，with()将该闭包的delegate属性设置到调用with()的对象上
@@ -17,4 +17,10 @@ new Example().with {
     println "owner is ${owner}，"
     println "delegate is ${delegate}."
 }
+
+Example getExample(String name) {
+    return new Example(name)
+}
+
+getExample "A"
 

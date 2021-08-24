@@ -1,0 +1,5 @@
+task cccc{
+    doFirst {
+        println "dofirst ccc"
+    }
+}

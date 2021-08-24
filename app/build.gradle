@@ -1,3 +1,4 @@
+
 plugins {
     id 'com.android.application'
 }
@@ -39,9 +40,67 @@ dependencies {
 }
 //每个项目由一个或多个任务组成。任务代表构建执行的一些原子工作。这可能是编译某些类，创建 JAR，生成 Javadoc
 // 或将一些存档发布到存储库。
-//自定义task ，在右边的gradle工具箱 task --->other 可以找到自定义的 diyTask
-task("diyTask"){
-    println "diy task"
+//创建task ，在右边的gradle工具箱 task --->other 可以找到自定义的 diyTask
+task("diyTask") {
+    group("diy")//使用 group方法给 task分组
+    description("任务描述")//gradlew task diyTask 可见
+    println "diy task"//配置阶段执行
 }
-//
+// 创建task 的另一种写法，方法名 后跟返回类型的变量，没有找到相关用法，存疑
+task A {
+    println "config exe" //配置阶段执行
+
+    doFirst {
+        println "task A doFirst"//执行阶段前调用
+    }
+    doLast {
+        println "task A doLast"//执行阶段后调用
+    }
+
+}
+task B {
+    doLast {
+        println "task B"
+    }
+}
+//dependsOn  依赖  ， task C依赖A和B。A和B的执行顺序与首字母大小有关系
+task C(dependsOn: [A, B]) {
+    doLast {
+        println "task C"
+    }
+}
+//A.dependsOn(B)//  依赖的另一种写法
+A.mustRunAfter(B)//强制让A在B后执行
+A.shouldRunAfter(B)//让A在B后执行，非强制
+A.finalizedBy(C) //A不管执行没有最后都要执行C
 //也可以脚本执行task 在terminal 里面 执行gradlew task diyTask或者驼峰写法 gradlew task dt
+
+//自定义task
+class MyTask extends DefaultTask {
+    @Input
+    String filePath//可以指定filePath来传入n个文件的路径
+
+    @OutputFile
+    File file  //输出一个文件
+
+
+//任务运行，执行的是action方法，dofirst和doLast就是一种action方法
+    @TaskAction
+    void action() {
+        println "MyTask action"
+    }
+
+}
+//生成自定义task， 效果同上 task A,  通过右边gradle窗口执行
+tasks.create("myTask", MyTask) {
+
+}
+//通过引入文件的方式 生成task apply from:'config.gradle'
+apply from: 'config.gradle'
+
+//生成 自定义task 同 tasks.create("myTask", MyTask)
+task crate2(type:MyTask){
+//    println this.getClass().getName()
+//    println this.metaClass.class
+//    println this.delegate
+}

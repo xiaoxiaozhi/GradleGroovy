@@ -68,13 +68,13 @@ def closure1 = {
     println getClass().getName() //
     println "this is " + this + "; parent isc" + getClass().superclass.getName()
     println "owner is " + owner
-    println "delegate is " + owner
+    println "delegate is " + delegate
     def closure2 = {
         println "second closure2"
         println getClass().getName()
         println "this is " + this + "; parent isc" + getClass().superclass.getName()
         println "owner is " + owner
-        println "delegate is " + owner
+        println "delegate is " + delegate
     }
     closure2()
 }
