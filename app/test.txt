@@ -37,7 +37,6 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
 }
-//gradle 三个阶段看配套ppt各个函数执行书序：1. setting.gradle执行  2.
 //每个项目由一个或多个任务组成。任务代表构建执行的一些原子工作。这可能是编译某些类，创建 JAR，生成 Javadoc
 // 或将一些存档发布到存储库。
 //创建task ，在右边的gradle工具箱 task --->other 可以找到自定义的 diyTask
@@ -115,7 +114,7 @@ task crate2(type: MyTask) {
 
 //    filePath = "xxx/xxx"
 //    file = file("test.txt")
-    //输入 输出文件的另一种写法,每个任务都会有一个 输入和输出 inputs 和 outputs
+    //输入 输出文件的另一种写法
     inputs.file "build.gradle"
     outputs.file("test.txt")
     println "creat2"
@@ -123,18 +122,7 @@ task crate2(type: MyTask) {
 
 //使用自定义任务类，实现打包
 task zip(type: Zip) {
-    println "exect zip"
     archiveName "out.zip"
     destinationDir file("${buildDir}/dir")
     from "${buildDir}/outputs"
 }
-//通过task
-afterEvaluate {//gradle提供的钩子函数，所有任务配置完成再执行
-    println tasks.getByName("packageDebug")// project下所有的任务都可以获取
-    task zipPackage(type: Zip) {//把任务 packageDebug 输出打包
-        archiveName "package.zip"
-        destinationDir file("${buildDir}/dir")
-        from tasks.getByName("packageDebug").outputs.files
-    }
-}
-//
