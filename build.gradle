@@ -1,9 +1,14 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
+apply from: "project.gradle"// 添加app项目project依赖,在这个gradle
+
+
 buildscript {
+    //构建脚本依赖仓库 下面的不一样，点进去查看会发现属于不同的类
     repositories {
         google()
         jcenter()
     }
+    //为当前的项目配置脚本类路径
     dependencies {
         classpath "com.android.tools.build:gradle:4.1.0"
 
@@ -11,8 +16,9 @@ buildscript {
         // in the individual module build.gradle files
     }
 }
-
+//对所有的工程进行配置
 allprojects {
+    //代码依赖存储仓库
     repositories {
         google()
         jcenter()
@@ -21,4 +27,7 @@ allprojects {
 
 task clean(type: Delete) {
     delete rootProject.buildDir
+}
+rootProject.afterEvaluate {
+    println "rootProject.afterEvaluate"
 }

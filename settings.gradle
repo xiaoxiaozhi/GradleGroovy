@@ -1,4 +1,13 @@
 include ':GroovyLib'
 include ':app'
 rootProject.name = "GradleGroovy"
-//: 相当于 /
+//1.初始化阶段执行顺序---settings.gradle 、gradle.settingsEvaluated 、gradle.projectsLoaded
+//2.配置阶段执行顺序---gradle.beforeProject、project.beforeEvaluate、
+// build.gradle配置的任务和子集、project.afterEvaluate、gradle.taskGraph.whenReady
+gradle.settingsEvaluated {
+    println "settingsEvaluated"
+}
+gradle.projectsLoaded {
+    println "projectsLoaded"
+}
+

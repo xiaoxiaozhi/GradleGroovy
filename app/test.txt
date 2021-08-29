@@ -1,42 +1,5 @@
-plugins {
-    id 'com.android.application'
-}
 
-android {
-    compileSdkVersion 30
-    buildToolsVersion "30.0.3"
-
-    defaultConfig {
-        applicationId "com.gradlegroovy"
-        minSdkVersion 16
-        targetSdkVersion 30
-        versionCode 1
-        versionName "1.0"
-
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-    }
-
-    buildTypes {
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-        }
-    }
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
-    }
-}
-
-dependencies {
-
-    implementation 'androidx.appcompat:appcompat:1.1.0'
-    implementation 'com.google.android.material:material:1.1.0'
-    implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
-    testImplementation 'junit:junit:4.+'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.1'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
-}
+//gradle 三个阶段看配套ppt各个函数执行书序：1. setting.gradle执行  2.
 //每个项目由一个或多个任务组成。任务代表构建执行的一些原子工作。这可能是编译某些类，创建 JAR，生成 Javadoc
 // 或将一些存档发布到存储库。
 //创建task ，在右边的gradle工具箱 task --->other 可以找到自定义的 diyTask
@@ -85,7 +48,12 @@ class MyTask extends DefaultTask {
     @Optional
     File file  //输出一个文件
 
-
+    MyTask() {
+        //action 任务执行一次之后 如果没有改动输入输出就不会继续执行，此时需要这么做
+//        outputs.upToDateWhen {
+//            false
+//        }
+    }
 //任务运行，执行的是action方法，dofirst和doLast就是一种action方法
     @TaskAction
     void action() {
@@ -114,15 +82,65 @@ task crate2(type: MyTask) {
 
 //    filePath = "xxx/xxx"
 //    file = file("test.txt")
-    //输入 输出文件的另一种写法
+    //输入 输出文件的另一种写法,每个任务都会有一个 输入和输出 inputs 和 outputs
     inputs.file "build.gradle"
     outputs.file("test.txt")
     println "creat2"
+    outputs.upToDateWhen {
+        false
+    }
 }
 
 //使用自定义任务类，实现打包
 task zip(type: Zip) {
+    println "exect zip"
     archiveName "out.zip"
     destinationDir file("${buildDir}/dir")
     from "${buildDir}/outputs"
 }
+//配置阶段执行顺序---gradle.beforeProject、project.beforeEvaluate、
+// build.gradle配置的任务和子集、project.afterEvaluate、gradle.taskGraph.whenReady
+//通过task
+project.afterEvaluate {//gradle提供的钩子函数，所有任务配置完成再执行
+    println tasks.getByName("packageDebug")// project下所有的任务都可以获取
+    task zipPackage(type: Zip) {//把任务 packageDebug 输出打包
+        archiveName "package.zip"
+        destinationDir file("${buildDir}/dir")
+        from tasks.getByName("packageDebug").outputs.files
+    }
+}
+gradle.beforeProject {
+    println "beforeProject"
+}
+project.beforeEvaluate {
+    println "beforeEvaluate"
+}
+gradle.taskGraph.whenReady {
+    println "whenReady"
+}
+//对所有的project进行监听
+gradle.addProjectEvaluationListener(new ProjectEvaluationListener() {
+    @Override
+    void beforeEvaluate(Project project) {
+        println "gradle.addProjectEvaluationListener---beforeEvaluate"
+    }
+
+    @Override
+    void afterEvaluate(Project project, ProjectState state) {
+        println "gradle.addProjectEvaluationListener---afterEvaluate"
+    }
+})
+
+task projectApi{
+    println "rootProject---"+project.getRootProject()
+    println "rootDir---"+project.getRootDir()
+    println "subProjects---"+project.getSubprojects()
+    println "allProjects---"+project.getAllprojects()
+    println "buildDir---"+project.getBuildDir()
+}
+
+//用 project 给项目指定gradle ，在 根项目的build.gradle 中使用 apply from:"project.gradle"添加project依赖
+//在project.gradle 中 project(":app"){android{...} depends{...}}生成app项目的project
+// 注意 在这里不能使用plugins标签，要是用 apply plugin:'com.android.application'
+//
+
